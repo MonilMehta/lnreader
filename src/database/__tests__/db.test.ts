@@ -1211,3 +1211,25 @@ describe('production migrations', () => {
     }
   });
 });
+
+it('opens the iOS database inside Library instead of the container root', () => {
+  jest.isolateModules(() => {
+    const { Platform } = require('react-native');
+    const sqliteModule = require('@op-engineering/op-sqlite');
+    const sqlite = sqliteModule.open({ name: ':memory:' });
+    const openSpy = jest.spyOn(sqliteModule, 'open').mockReturnValue(sqlite);
+    const originalOS = Platform.OS;
+    Platform.OS = 'ios';
+    try {
+      require('@database/db');
+      expect(openSpy).toHaveBeenCalledWith({
+        name: 'lnreader.db',
+        location: 'SQLite',
+      });
+    } finally {
+      Platform.OS = originalOS;
+      openSpy.mockRestore();
+      sqlite.close();
+    }
+  });
+});

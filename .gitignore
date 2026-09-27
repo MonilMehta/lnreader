@@ -114,3 +114,10 @@ release-artifacts/
 !plugins/android/
 ios/
 !modules/**/ios/
+
+# Local reader data and backup archives
+*.backup
+*.zip
+*.db
+*.db-shm
+*.db-wal

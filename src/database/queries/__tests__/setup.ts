@@ -52,6 +52,8 @@ export function teardownTestDatabase() {
   }
 }
 
+jest.mock('react-native', () => ({ Platform: { OS: 'android' } }));
+
 // Mock utility functions (still needed for tests)
 jest.mock('@utils/showToast', () => ({
   showToast: jest.fn(),

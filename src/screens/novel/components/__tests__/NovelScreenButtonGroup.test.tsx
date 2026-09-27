@@ -111,7 +111,6 @@ describe('NovelScreenButtonGroup', () => {
       <NovelScreenButtonGroup
         novel={baseNovel}
         theme={theme}
-        handleTrackerSheet={jest.fn()}
         handleFollowNovel={jest.fn()}
       />,
     );
@@ -133,7 +132,6 @@ describe('NovelScreenButtonGroup', () => {
       <NovelScreenButtonGroup
         novel={{ ...baseNovel, inLibrary: false }}
         theme={theme}
-        handleTrackerSheet={jest.fn()}
         handleFollowNovel={jest.fn()}
       />,
     );

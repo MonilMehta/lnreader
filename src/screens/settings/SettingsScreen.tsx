@@ -74,16 +74,6 @@ const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
           theme={theme}
         />
         <List.Item
-          title={getString('tracking')}
-          icon="sync"
-          onPress={() =>
-            navigation.navigate('SettingsStack', {
-              screen: 'TrackerSettings',
-            })
-          }
-          theme={theme}
-        />
-        <List.Item
           title={getString('common.backup')}
           icon="cloud-upload-outline"
           onPress={() =>

@@ -9,7 +9,6 @@ import { ThemeColors } from '@theme/types';
 import { getString } from '@i18n/translations';
 import SetCategoryModal from '../SetCategoriesModal';
 import { NovelScreenProps } from '@navigators/types';
-import { useTrackedNovel, useTracker } from '@hooks/persisted';
 import Animated, { ZoomIn, ZoomOut } from 'react-native-reanimated';
 import { MaterialDesignIconName } from '@type/icon';
 import { useNovelAction } from '@screens/novel/NovelContext';
@@ -60,25 +59,20 @@ const Button = memo(NButton);
 interface NovelScreenButtonGroupProps {
   novel: NovelInfo | (Omit<NovelInfo, 'id'> & { id: 'NO_ID' });
   theme: ThemeColors;
-  handleTrackerSheet: () => void;
   handleFollowNovel: () => void;
 }
 
 const NovelScreenButtonGroup: React.FC<NovelScreenButtonGroupProps> = ({
   novel,
-  handleTrackerSheet,
   handleFollowNovel,
   theme,
 }) => {
   const { inLibrary, isLocal } = novel;
   const { navigate } = useNavigation<NovelScreenProps['navigation']>();
-  const { tracker } = useTracker();
-  const { trackedNovel } = useTrackedNovel(novel.id);
   const setNovel = useNovelAction('setNovel');
   const { refetchLibrary } = useLibraryContext();
 
   const followButtonColor = inLibrary ? theme.primary : theme.outline;
-  const trackerButtonColor = trackedNovel ? theme.primary : theme.outline;
 
   const handleOpenWebView = async () => {
     navigate('WebviewScreen', {
@@ -120,19 +114,6 @@ const NovelScreenButtonGroup: React.FC<NovelScreenButtonGroupProps> = ({
           color={followButtonColor}
         />
 
-        {tracker ? (
-          <Button
-            theme={theme}
-            onPress={handleTrackerSheet}
-            icon={trackedNovel ? 'check' : 'sync'}
-            label={
-              trackedNovel
-                ? getString('novelScreen.tracked')
-                : getString('novelScreen.tracking')
-            }
-            color={trackerButtonColor}
-          />
-        ) : null}
         {inLibrary && !isLocal ? (
           <Button
             theme={theme}

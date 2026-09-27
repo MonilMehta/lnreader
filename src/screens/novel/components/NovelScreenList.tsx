@@ -19,7 +19,6 @@ import {
   useSharedValue,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import TrackSheet from './Tracker/TrackSheet';
 import NovelBottomSheet from './NovelBottomSheet';
 import PageNavigationBottomSheet from './PageNavigationBottomSheet';
 import * as Haptics from 'expo-haptics';
@@ -134,7 +133,6 @@ const NovelScreenList = ({
   const { height: screenHeight } = useWindowDimensions();
 
   const novelBottomSheetRef = useRef<BottomSheetModalMethods>(null);
-  const trackerSheetRef = useRef<BottomSheetModalMethods>(null);
   const pageNavigationSheetRef = useRef<BottomSheetModalMethods>(null);
 
   // Derive selectedIds Set for O(1) lookups
@@ -341,7 +339,6 @@ const NovelScreenList = ({
           saveNovelCover={saveNovelCover}
           theme={theme}
           totalChapters={batchInformation.totalChapters}
-          trackerSheetRef={trackerSheetRef}
         />
         {paginationControl}
       </>
@@ -444,7 +441,6 @@ const NovelScreenList = ({
             bottomSheetRef={novelBottomSheetRef}
             theme={theme}
           />
-          <TrackSheet bottomSheetRef={trackerSheetRef} novel={novel} />
           {(novel.totalPages ?? 0) > 1 || pages.length > 1 ? (
             <PageNavigationBottomSheet
               bottomSheetRef={pageNavigationSheetRef}

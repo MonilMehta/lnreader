@@ -88,6 +88,7 @@ const MigrationNovelList = ({
       },
     });
     hideMigrateNovelDialog();
+    navigation.popTo('BottomNavigator', { screen: 'Library' });
   };
 
   return (

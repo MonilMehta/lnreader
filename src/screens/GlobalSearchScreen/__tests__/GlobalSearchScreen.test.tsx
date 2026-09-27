@@ -19,10 +19,12 @@ jest.mock('react-native-keyboard-controller', () => ({
 
 jest.mock('@react-navigation/native', () => {
   const mockNavigate = jest.fn();
+  const mockGoBack = jest.fn();
   return {
     createNavigationContainerRef: () => ({
       isReady: jest.fn(() => true),
       navigate: mockNavigate,
+      goBack: mockGoBack,
       getCurrentRoute: jest.fn(() => null),
     }),
     useFocusEffect: jest.fn(),
@@ -36,10 +38,11 @@ jest.mock('@react-navigation/native', () => {
 
 const mockNavigationRef = createNavigationContainerRef();
 const mockNavigate = mockNavigationRef.navigate as jest.Mock;
+const mockGoBack = mockNavigationRef.goBack as jest.Mock;
 
 jest.mock('@components/index', () => {
   const { createElement } = require('react');
-  const { Text, View, TextInput } = require('react-native');
+  const { Text, View, TextInput, Pressable } = require('react-native');
   return {
     EmptyView: ({ description }: { description: string }) =>
       createElement(Text, null, description),
@@ -49,17 +52,27 @@ jest.mock('@components/index', () => {
       searchText,
       onChangeText,
       onSubmitEditing,
+      handleBackAction,
     }: {
       searchText: string;
       onChangeText: (text: string) => void;
       onSubmitEditing: () => void;
+      handleBackAction: () => void;
     }) =>
-      createElement(TextInput, {
-        testID: 'search-input',
-        value: searchText,
-        onChangeText,
-        onSubmitEditing,
-      }),
+      createElement(
+        View,
+        null,
+        createElement(Pressable, {
+          testID: 'search-back',
+          onPress: handleBackAction,
+        }),
+        createElement(TextInput, {
+          testID: 'search-input',
+          value: searchText,
+          onChangeText,
+          onSubmitEditing,
+        }),
+      ),
     SelectableChip: () => null,
   };
 });
@@ -203,6 +216,12 @@ beforeEach(() => {
 });
 
 describe('GlobalSearchScreen', () => {
+  it('returns to the previous screen when back is pressed', () => {
+    render(<GlobalSearchScreen />);
+    fireEvent.press(screen.getByTestId('search-back'));
+    expect(mockGoBack).toHaveBeenCalledTimes(1);
+  });
+
   it('shows the open-novel button for a matching URL and navigates on press', () => {
     render(<GlobalSearchScreen />);
 

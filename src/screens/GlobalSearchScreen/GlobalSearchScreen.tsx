@@ -135,7 +135,8 @@ const GlobalSearchScreen = (props: Props) => {
       <SearchbarV2
         searchText={searchText}
         placeholder={getString('browseScreen.globalSearch')}
-        leftIcon="magnify"
+        leftIcon="arrow-left"
+        handleBackAction={() => navigationRef.goBack()}
         onChangeText={onChangeText}
         onSubmitEditing={handleSubmit}
         clearSearchbar={clearSearchbar}
