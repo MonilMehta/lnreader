@@ -4,17 +4,33 @@
   </a>
 </p>
 
-<h1 align="center">LNReader</h1>
+<h1 align="center">LNReader for iOS</h1>
 
 <p align="center">
-  LNReader is a free and open source light novel reader for Android, inspired by Tachiyomi.
+  A personal iOS port of <a href="https://github.com/lnreader/lnreader">LNReader</a>, the free and open source light novel reader for Android.
 </p>
 
-## Experimental iOS port
+## About this project
 
-This branch adds iOS support to LNReader. It is a work in progress, tested on an
-iOS simulator; it is not an official iOS release. See [iOS status and setup](IOS_PORT.md)
-for tested features, limitations, and device installation instructions.
+I ported LNReader to iOS for my own use. This is currently a personal project
+that I maintain for myself on a best-effort basis. It is an experimental,
+unofficial port, tested on an iOS simulator and a physical iPhone; some features
+are still incomplete.
+
+See [iOS status and setup](IOS_PORT.md) for tested features, limitations, and
+instructions for building and installing it on your own device. Personal
+libraries, backups, and signing credentials are not included in this repository.
+
+## App Store interest
+
+If you would like to see this on the App Store, open an issue to let me know.
+I am open to exploring a release and willing to cover the Apple Developer
+Program fee. There is no App Store release yet.
+
+## Original LNReader project
+
+The badges and Android download links below belong to the original LNReader
+project. Credit for LNReader and its plugins goes to the upstream contributors.
 
 <div align="center">
   <a href="https://discord.gg/QdcWN4MD63">
@@ -35,7 +51,7 @@ for tested features, limitations, and device installation instructions.
   </a>
 </div>
 
-<h2 align="center">Download</h2>
+<h2 align="center">Original Android app downloads</h2>
 
 <p align="center">
   <a href="https://github.com/lnreader/lnreader/releases/latest">
