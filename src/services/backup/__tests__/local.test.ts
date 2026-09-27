@@ -113,4 +113,52 @@ describe('local selective backup', () => {
       jest.mocked(NativeZipArchive.unzip).mock.invocationCallOrder[1],
     );
   });
+  it('restores a folder export containing data.zip and download.zip', async () => {
+    const backupPath = '/cache/BackupData/legacy.backup';
+    const result = {
+      novelCount: 0,
+      failedNovelCount: 0,
+      categoryCount: 0,
+      failedCategoryCount: 0,
+      settingsRestored: true,
+      failedSectionCount: 0,
+      pluginIds: [],
+      novelMappings: [],
+      manifest: {
+        formatVersion: 1 as const,
+        sections: {
+          library: true,
+          settings: true,
+          plugins: true,
+          downloadedFiles: true,
+        },
+      },
+    };
+    jest
+      .mocked(NativeFile.exists)
+      .mockImplementation(
+        async path =>
+          path === `${backupPath}/data.zip` ||
+          path === `${backupPath}/download.zip`,
+      );
+    jest
+      .mocked(NativeFile.readDir)
+      .mockResolvedValue([
+        { name: 'legacy.backup', path: backupPath, isDirectory: true },
+      ]);
+    jest.mocked(restoreData).mockResolvedValueOnce(result);
+    jest.mocked(finalizeRestoredPlugins).mockResolvedValueOnce([]);
+
+    await restoreBackup({ sourceUri: 'content://folder-export.zip' });
+
+    expect(NativeZipArchive.unzip).toHaveBeenCalledWith(
+      `${backupPath}/data.zip`,
+      backupPath,
+    );
+    expect(restoreData).toHaveBeenCalledWith(backupPath, undefined);
+    expect(NativeZipArchive.unzip).toHaveBeenCalledWith(
+      `${backupPath}/download.zip`,
+      '/cache/BackupData/RestoredLegacyFiles',
+    );
+  });
 });

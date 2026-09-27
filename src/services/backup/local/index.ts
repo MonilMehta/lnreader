@@ -10,7 +10,7 @@ import {
 } from '../restoreResult';
 import { getBackupCompletionText } from '../backupResult';
 import NativeZipArchive from '@modules/native-zip-archive';
-import { ZipBackupName } from '../types';
+import { BackupEntryName, ZipBackupName } from '../types';
 import NativeFile from '@modules/native-file';
 import { getString } from '@i18n/translations';
 import type { TaskProgressUpdater } from '@services/backgroundTasks/contracts';
@@ -118,6 +118,31 @@ export const restoreBackup = async (
 
     await NativeZipArchive.unzip(localPath, CACHE_DIR_PATH);
 
+    let backupPath = CACHE_DIR_PATH;
+    if (
+      !(await NativeFile.exists(`${backupPath}/${BackupEntryName.VERSION}`))
+    ) {
+      if (!(await NativeFile.exists(`${backupPath}/${ZipBackupName.DATA}`))) {
+        const folders = (await NativeFile.readDir(backupPath)).filter(
+          item => item.isDirectory,
+        );
+        const candidates = [];
+        for (const folder of folders) {
+          if (await NativeFile.exists(`${folder.path}/${ZipBackupName.DATA}`)) {
+            candidates.push(folder.path);
+          }
+        }
+        if (candidates.length !== 1) {
+          throw new Error(getString('backupScreen.invalidBackupFolder'));
+        }
+        backupPath = candidates[0];
+      }
+      await NativeZipArchive.unzip(
+        `${backupPath}/${ZipBackupName.DATA}`,
+        backupPath,
+      );
+    }
+
     setMeta?.(meta => ({
       ...meta,
       progress: 2 / 4,
@@ -126,7 +151,7 @@ export const restoreBackup = async (
 
     await sleep(200);
 
-    const restoreResult = await restoreData(CACHE_DIR_PATH, setMeta);
+    const restoreResult = await restoreData(backupPath, setMeta);
 
     setMeta?.(meta => ({
       ...meta,
@@ -137,7 +162,7 @@ export const restoreBackup = async (
     await sleep(200);
 
     if (restoreResult.manifest.formatVersion === 1) {
-      const legacyArchive = CACHE_DIR_PATH + '/' + ZipBackupName.DOWNLOAD;
+      const legacyArchive = backupPath + '/' + ZipBackupName.DOWNLOAD;
       if (!(await NativeFile.exists(legacyArchive))) {
         throw new Error(getString('backupScreen.invalidBackupFolder'));
       }
@@ -152,7 +177,7 @@ export const restoreBackup = async (
       for (const section of getSelectedBackupFileSections(
         restoreResult.manifest.sections,
       )) {
-        const archivePath = `${CACHE_DIR_PATH}/${section.archiveName}`;
+        const archivePath = `${backupPath}/${section.archiveName}`;
         if (!(await NativeFile.exists(archivePath))) {
           throw new Error(getString('backupScreen.invalidBackupFolder'));
         }

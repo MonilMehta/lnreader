@@ -18,7 +18,7 @@ export type NativeBackgroundTaskRecord = NativeBackgroundTaskSummary & {
   checkpoint?: string;
 };
 
-type NativeBackgroundTasksModule = {
+export type NativeBackgroundTasksModule = {
   getTasks(): Promise<NativeBackgroundTaskSummary[]>;
   getTask(taskId: string): Promise<NativeBackgroundTaskRecord | null>;
 

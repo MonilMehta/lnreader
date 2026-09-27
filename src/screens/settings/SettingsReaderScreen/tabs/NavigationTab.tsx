@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, StyleSheet, useWindowDimensions, Platform } from 'react-native';
 import { TextInput } from 'react-native-paper';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import defaultTo from 'lodash-es/defaultTo';
@@ -38,18 +38,20 @@ const NavigationTab: React.FC = () => {
     >
       <View style={styles.section}>
         <List.SubHeader theme={theme}>Navigation Controls</List.SubHeader>
-        <SettingSwitch
-          label={getString('readerScreen.bottomSheet.volumeButtonsScroll')}
-          description={getString(
-            'readerScreen.bottomSheet.volumeButtonsScrollDescription',
-          )}
-          value={useVolumeButtons}
-          onPress={() =>
-            setChapterGeneralSettings({ useVolumeButtons: !useVolumeButtons })
-          }
-          theme={theme}
-        />
-        {useVolumeButtons && (
+        {Platform.OS === 'android' && (
+          <SettingSwitch
+            label={getString('readerScreen.bottomSheet.volumeButtonsScroll')}
+            description={getString(
+              'readerScreen.bottomSheet.volumeButtonsScrollDescription',
+            )}
+            value={useVolumeButtons}
+            onPress={() =>
+              setChapterGeneralSettings({ useVolumeButtons: !useVolumeButtons })
+            }
+            theme={theme}
+          />
+        )}
+        {Platform.OS === 'android' && useVolumeButtons && (
           <View style={styles.inputContainer}>
             <TextInput
               label={getString('readerSettings.volumeButtonOffset')}

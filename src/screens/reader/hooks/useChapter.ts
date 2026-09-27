@@ -28,7 +28,7 @@ import { sanitizeChapterText } from '../utils/sanitizeChapterText';
 import { parseChapterNumber } from '@utils/parseChapterNumber';
 import WebView from 'react-native-webview';
 import { useFullscreenMode } from '@hooks';
-import { Dimensions } from 'react-native';
+import { Dimensions, Platform } from 'react-native';
 import { runWhenIdle } from '@utils/runWhenIdle';
 import defaultTo from 'lodash-es/defaultTo';
 import { showToast } from '@utils/showToast';
@@ -156,6 +156,7 @@ export default function useChapter(
   });
 
   useEffect(() => {
+    if (Platform.OS !== 'android') return;
     NativeVolumeButtonListener.setActive(useVolumeButtons);
     return () => NativeVolumeButtonListener.setActive(false);
   }, [useVolumeButtons]);

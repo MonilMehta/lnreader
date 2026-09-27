@@ -10,6 +10,12 @@
   LNReader is a free and open source light novel reader for Android, inspired by Tachiyomi.
 </p>
 
+## Experimental iOS port
+
+This branch adds iOS support to LNReader. It is a work in progress, tested on an
+iOS simulator; it is not an official iOS release. See [iOS status and setup](IOS_PORT.md)
+for tested features, limitations, and device installation instructions.
+
 <div align="center">
   <a href="https://discord.gg/QdcWN4MD63">
     <img alt="Discord Chat" src="https://img.shields.io/discord/835746409357246465.svg?logo=discord&logoColor=white&logoWidth=20&labelColor=5865F2&color=4752C4&label=discord&style=flat">

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Platform } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 
 import { newer } from '@utils/compareVersion';
@@ -93,7 +94,7 @@ export const useAppUpdateChecker = (): AppUpdate => {
   }, []);
 
   const checkForRelease = useCallback(async () => {
-    if (!shouldCheckForUpdate()) {
+    if (Platform.OS !== 'android' || !shouldCheckForUpdate()) {
       setChecking(false);
       return;
     }

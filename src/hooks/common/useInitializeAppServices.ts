@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import NativeFile from '@modules/native-file';
+import { NOVEL_STORAGE, PLUGIN_STORAGE } from '@utils/Storages';
 
 import { initializeInstalledPlugins } from '@plugins/pluginManager';
 import { backgroundTasks } from '@services/backgroundTasks';
@@ -12,7 +14,12 @@ let initializationPromise: Promise<void> | undefined;
 
 const initializeAppServices = (): Promise<void> => {
   if (!initializationPromise) {
-    initializationPromise = initializeInstalledPlugins()
+    initializationPromise = Promise.all([
+      NativeFile.mkdir(PLUGIN_STORAGE),
+      NativeFile.mkdir(NOVEL_STORAGE),
+      NativeFile.prepareReaderAssets?.(),
+    ])
+      .then(initializeInstalledPlugins)
       .then(async () => {
         await backgroundTasks.refresh();
       })

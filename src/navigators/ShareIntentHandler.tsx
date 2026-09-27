@@ -52,13 +52,14 @@ export const flushPendingShare = () => {
 };
 
 const ShareIntentHandler = () => {
+  const receiver = NativeShareReceiver!;
   const handleSharedText = useCallback((text: string) => {
     dispatchSharedText(text);
   }, []);
 
   useEffect(() => {
     let active = true;
-    Promise.resolve(NativeShareReceiver.getInitialSharedText())
+    Promise.resolve(receiver.getInitialSharedText())
       .then(text => {
         if (active && text) {
           handleSharedText(text);
@@ -70,9 +71,9 @@ const ShareIntentHandler = () => {
     return () => {
       active = false;
     };
-  }, [handleSharedText]);
+  }, [handleSharedText, receiver]);
 
-  useEventListener(NativeShareReceiver, 'SharedText', ({ text }) => {
+  useEventListener(receiver, 'SharedText', ({ text }) => {
     if (text) {
       handleSharedText(text);
     }
@@ -81,4 +82,4 @@ const ShareIntentHandler = () => {
   return null;
 };
 
-export default ShareIntentHandler;
+export default NativeShareReceiver ? ShareIntentHandler : () => null;

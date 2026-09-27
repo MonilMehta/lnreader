@@ -17,6 +17,7 @@ export type FileCopyResult = {
 };
 
 type NativeFileModule = {
+  prepareReaderAssets?: () => Promise<void>;
   DocumentDirectoryPath: string;
   ExternalDirectoryPath: string;
   ExternalCachesDirectoryPath: string;

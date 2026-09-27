@@ -51,6 +51,18 @@
             },
             "enableMinifyInReleaseBuilds": true,
             "enableShrinkResourcesInReleaseBuilds": true
+          },
+          "ios": {
+            "extraPods": [
+              {
+                "name": "GoogleUtilities",
+                "modular_headers": true
+              },
+              {
+                "name": "RecaptchaInterop",
+                "modular_headers": true
+              }
+            ]
           }
         }
       ]
@@ -75,7 +87,11 @@
         {
           "action": "SEND",
           "category": ["DEFAULT"],
-          "data": [{ "mimeType": "text/plain" }]
+          "data": [
+            {
+              "mimeType": "text/plain"
+            }
+          ]
         }
       ]
     },
@@ -87,7 +103,9 @@
     "ios": {
       "bundleIdentifier": "com.rajarsheechatterjee.LNReader",
       "infoPlist": {
-        "UIBackgroundModes": ["audio"]
+        "UIBackgroundModes": ["audio"],
+        "UIFileSharingEnabled": true,
+        "LSSupportsOpeningDocumentsInPlace": true
       }
     }
   }

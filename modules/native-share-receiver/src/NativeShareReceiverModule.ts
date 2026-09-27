@@ -1,4 +1,4 @@
-import { NativeModule, requireNativeModule } from 'expo-modules-core';
+import { NativeModule, requireOptionalNativeModule } from 'expo-modules-core';
 
 export type NativeShareReceiverEvents = {
   SharedText: (payload: { text: string }) => void;
@@ -8,6 +8,6 @@ declare class NativeShareReceiverModule extends NativeModule<NativeShareReceiver
   getInitialSharedText(): string | null;
 }
 
-export default requireNativeModule<NativeShareReceiverModule>(
+export default requireOptionalNativeModule<NativeShareReceiverModule>(
   'NativeShareReceiver',
 );

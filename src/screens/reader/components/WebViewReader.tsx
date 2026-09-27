@@ -1,7 +1,13 @@
+import {
+  readerAssetsUri as assetsUriPrefix,
+  readerFileAccessUrl,
+} from '@utils/readerAssets';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
 import {
   NativeEventEmitter,
   NativeModules,
+  Platform,
   StatusBar,
   StyleSheet,
 } from 'react-native';
@@ -120,10 +126,6 @@ const deviceInfoEmitter = new NativeEventEmitter(RNDeviceInfo);
  */
 let lastKnownBatteryLevel = 0;
 
-const assetsUriPrefix = __DEV__
-  ? 'http://localhost:8081/assets'
-  : 'file:///android_asset';
-
 const WebViewReader: React.FC<WebViewReaderProps> = ({
   onPress,
   onTouchStart,
@@ -144,6 +146,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
     refetch,
   } = useChapterContext();
   const theme = useTheme();
+  const { top: safeAreaTop } = useSafeAreaInsets();
   const initialReaderSettings = useMemo(
     () => ({
       ...initialChapterReaderSettings,
@@ -316,7 +319,12 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
     // eslint-disable-next-line react-hooks/refs
     const isNextChapterScreenVisible = nextChapterScreenVisible.current;
     return {
-      baseUrl: !chapter.isDownloaded ? plugin?.site : undefined,
+      baseUrl:
+        Platform.OS === 'ios'
+          ? readerFileAccessUrl
+          : !chapter.isDownloaded
+          ? plugin?.site
+          : undefined,
       headers: plugin?.imageRequestInit?.headers,
       method: plugin?.imageRequestInit?.method,
       body: plugin?.imageRequestInit?.body,
@@ -325,13 +333,22 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
           <html dir="${readerDir}">
             <head>
               <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+              ${
+                Platform.OS === 'ios' && !chapter.isDownloaded && plugin?.site
+                  ? `<base href="${plugin.site}">`
+                  : ''
+              }
               <link rel="stylesheet" href="${assetsUriPrefix}/css/index.css">
               <link rel="stylesheet" href="${assetsUriPrefix}/css/pageReader.css">
               <link rel="stylesheet" href="${assetsUriPrefix}/css/toolWrapper.css">
               <link rel="stylesheet" href="${assetsUriPrefix}/css/tts.css">
               <style>
               :root {
-                --StatusBar-currentHeight: ${StatusBar.currentHeight}px;
+                --StatusBar-currentHeight: ${
+                  Platform.OS === 'ios'
+                    ? safeAreaTop
+                    : StatusBar.currentHeight ?? 0
+                }px;
                 --readerSettings-theme: ${initialReaderSettings.theme};
                 --readerSettings-padding: ${initialReaderSettings.padding}px;
                 --readerSettings-textSize: ${initialReaderSettings.textSize}px;
@@ -364,9 +381,9 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
                 <style id="ln-font">
                 @font-face {
                   font-family: ${initialReaderSettings.fontFamily};
-                  src: url("file:///android_asset/fonts/${
-                    initialReaderSettings.fontFamily
-                  }.ttf");
+                  src: url("${assetsUriPrefix}/fonts/${
+        initialReaderSettings.fontFamily
+      }.ttf");
                 }
 				</style>
               <link rel="stylesheet" href="${pluginCustomCSS}">
@@ -447,6 +464,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
     pluginCustomCSS,
     pluginCustomJS,
     readerDir,
+    safeAreaTop,
     theme,
   ]);
 
@@ -457,6 +475,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
         onTouchStart={onTouchStart}
         style={{ backgroundColor: readerSettings.theme }}
         allowFileAccess={true}
+        allowingReadAccessToURL={readerFileAccessUrl}
         originWhitelist={['*']}
         scalesPageToFit={true}
         showsVerticalScrollIndicator={false}

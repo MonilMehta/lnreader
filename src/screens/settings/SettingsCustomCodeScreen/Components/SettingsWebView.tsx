@@ -1,3 +1,7 @@
+import {
+  readerAssetsUri as assetsUriPrefix,
+  readerFileAccessUrl,
+} from '@utils/readerAssets';
 import { memo, useEffect, useMemo, useRef } from 'react';
 import { NativeEventEmitter, NativeModules, StatusBar } from 'react-native';
 import WebView from 'react-native-webview';
@@ -33,10 +37,6 @@ const onLogMessage = (payload: { nativeEvent: { data: string } }) => {
 
 const { RNDeviceInfo } = NativeModules;
 const deviceInfoEmitter = new NativeEventEmitter(RNDeviceInfo);
-
-const assetsUriPrefix = __DEV__
-  ? 'http://localhost:8081/assets'
-  : 'file:///android_asset';
 
 const novel = {
   'artist': null,
@@ -154,7 +154,7 @@ const SettingsWebView = () => {
     () => `
   <style>
     :root {
-      --StatusBar-currentHeight: ${StatusBar.currentHeight};
+      --StatusBar-currentHeight: ${StatusBar.currentHeight ?? 0};
       --readerSettings-theme: ${settings.theme};
       --readerSettings-padding: ${settings.padding}px;
       --readerSettings-textSize: ${settings.textSize}px;
@@ -178,7 +178,7 @@ const SettingsWebView = () => {
     }
     @font-face {
       font-family: ${settings.fontFamily};
-      src: url("file:///android_asset/fonts/${settings.fontFamily}.ttf");
+      src: url("${assetsUriPrefix}/fonts/${settings.fontFamily}.ttf");
     }
     </style>
     <link rel="stylesheet" href="${assetsUriPrefix}/css/index.css">
@@ -215,6 +215,7 @@ const SettingsWebView = () => {
 
   const webViewSource = useMemo(
     () => ({
+      baseUrl: readerFileAccessUrl,
       html: `
             <html >
               <head>
@@ -320,6 +321,7 @@ const SettingsWebView = () => {
       ref={webViewRef}
       style={{ backgroundColor: settings.theme }}
       allowFileAccess={true}
+      allowingReadAccessToURL={readerFileAccessUrl}
       originWhitelist={['*']}
       scalesPageToFit={true}
       showsVerticalScrollIndicator={false}

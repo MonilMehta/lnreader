@@ -1,4 +1,5 @@
 import { act, renderHook, waitFor } from '@testing-library/react-native';
+import { Platform } from 'react-native';
 
 import { MMKVStorage } from '@utils/mmkv/mmkv';
 
@@ -38,8 +39,19 @@ const mockFetchRelease = () =>
 
 describe('useAppUpdateChecker', () => {
   beforeEach(() => {
+    jest.replaceProperty(Platform, 'OS', 'android');
     jest.mocked(MMKVStorage.getNumber).mockReturnValue(undefined);
     jest.mocked(MMKVStorage.getString).mockReturnValue(undefined);
+  });
+
+  afterEach(() => jest.restoreAllMocks());
+
+  it('does not check for Android APK updates on iOS', () => {
+    jest.replaceProperty(Platform, 'OS', 'ios');
+    const fetchRelease = mockFetchRelease();
+    const { result } = renderHook(useAppUpdateChecker);
+    expect(fetchRelease).not.toHaveBeenCalled();
+    expect(result.current.isNewVersion).toBe(false);
   });
 
   it('reports a newer release that has not been ignored', async () => {

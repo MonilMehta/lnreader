@@ -65,6 +65,7 @@ export const clearBackupCache = async (cacheDirPath = CACHE_DIR_PATH) => {
 const backupMMKVData = () => {
   const excludeKeys = [
     BACKGROUND_TASKS_STORE_KEY,
+    'IOS_BACKGROUND_TASK_RECORDS',
     OLD_TRACKED_NOVEL_PREFIX,
     SELF_HOST_BACKUP,
     LAST_UPDATE_TIME,

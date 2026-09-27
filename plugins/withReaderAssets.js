@@ -1,11 +1,15 @@
-const { withDangerousMod } = require('@expo/config-plugins');
+const {
+  withDangerousMod,
+  withXcodeProject,
+  IOSConfig,
+} = require('@expo/config-plugins');
 const fs = require('fs');
 const path = require('path');
 
-const withReaderAssets = (config) => {
+const withReaderAssets = config => {
   config = withDangerousMod(config, [
     'android',
-    (config) => {
+    config => {
       const projectRoot = config.modRequest.projectRoot;
       const platformRoot = config.modRequest.platformProjectRoot;
       const assetsDir = path.join(platformRoot, 'app', 'src', 'main', 'assets');
@@ -24,6 +28,27 @@ const withReaderAssets = (config) => {
       return config;
     },
   ]);
+
+  config = withXcodeProject(config, config => {
+    const projectName = config.modRequest.projectName;
+    const destination = path.join(
+      config.modRequest.platformProjectRoot,
+      projectName,
+      'reader',
+    );
+    fs.cpSync(
+      path.join(config.modRequest.projectRoot, 'assets', 'reader'),
+      destination,
+      { recursive: true },
+    );
+    IOSConfig.XcodeUtils.addResourceFileToGroup({
+      filepath: `${projectName}/reader`,
+      groupName: projectName,
+      project: config.modResults,
+      isBuildFile: true,
+    });
+    return config;
+  });
 
   return config;
 };

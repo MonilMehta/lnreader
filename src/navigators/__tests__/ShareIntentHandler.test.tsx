@@ -76,7 +76,7 @@ const NOVEL_URL =
 beforeEach(() => {
   jest.clearAllMocks();
   mockGetMMKVObject.mockReturnValue([testSource]);
-  (NativeShareReceiver.getInitialSharedText as jest.Mock).mockResolvedValue(
+  (NativeShareReceiver!.getInitialSharedText as jest.Mock).mockResolvedValue(
     null,
   );
   (navigationRef.isReady as jest.Mock).mockReturnValue(true);
@@ -84,7 +84,7 @@ beforeEach(() => {
 
 describe('ShareIntentHandler', () => {
   it('navigates to the novel on an initial share matching a plugin', async () => {
-    (NativeShareReceiver.getInitialSharedText as jest.Mock).mockResolvedValue(
+    (NativeShareReceiver!.getInitialSharedText as jest.Mock).mockResolvedValue(
       NOVEL_URL,
     );
 
@@ -104,7 +104,7 @@ describe('ShareIntentHandler', () => {
   });
 
   it('navigates to global search on an initial share matching no plugin', async () => {
-    (NativeShareReceiver.getInitialSharedText as jest.Mock).mockResolvedValue(
+    (NativeShareReceiver!.getInitialSharedText as jest.Mock).mockResolvedValue(
       'https://www.someothersite.com/novel/1',
     );
 
@@ -118,7 +118,7 @@ describe('ShareIntentHandler', () => {
   });
 
   it('does not navigate when the initial share is not a URL', async () => {
-    (NativeShareReceiver.getInitialSharedText as jest.Mock).mockResolvedValue(
+    (NativeShareReceiver!.getInitialSharedText as jest.Mock).mockResolvedValue(
       'hello world',
     );
 
@@ -135,8 +135,9 @@ describe('ShareIntentHandler', () => {
   it('navigates on a warm share delivered through the SharedText event', async () => {
     render(<ShareIntentHandler />);
 
-    const [eventName, listener] = (NativeShareReceiver.addListener as jest.Mock)
-      .mock.calls[0];
+    const [eventName, listener] = (
+      NativeShareReceiver!.addListener as jest.Mock
+    ).mock.calls[0];
 
     expect(eventName).toBe('SharedText');
 
@@ -154,7 +155,7 @@ describe('ShareIntentHandler', () => {
   });
 
   it('queues the initial share until the container is ready', async () => {
-    (NativeShareReceiver.getInitialSharedText as jest.Mock).mockResolvedValue(
+    (NativeShareReceiver!.getInitialSharedText as jest.Mock).mockResolvedValue(
       NOVEL_URL,
     );
     (navigationRef.isReady as jest.Mock).mockReturnValue(false);
@@ -187,8 +188,9 @@ describe('ShareIntentHandler', () => {
 
     render(<ShareIntentHandler />);
 
-    const [eventName, listener] = (NativeShareReceiver.addListener as jest.Mock)
-      .mock.calls[0];
+    const [eventName, listener] = (
+      NativeShareReceiver!.addListener as jest.Mock
+    ).mock.calls[0];
 
     expect(eventName).toBe('SharedText');
 
@@ -213,7 +215,7 @@ describe('ShareIntentHandler', () => {
   it('removes the SharedText listener on unmount', () => {
     const { unmount } = render(<ShareIntentHandler />);
 
-    const subscription = (NativeShareReceiver.addListener as jest.Mock).mock
+    const subscription = (NativeShareReceiver!.addListener as jest.Mock).mock
       .results[0].value;
     expect(subscription.remove).toBeDefined();
 

@@ -19,6 +19,8 @@ import {
   createNovelTriggerQueryUpdate,
 } from './queryStrings/triggers';
 import { useEffect, useReducer } from 'react';
+import { Platform } from 'react-native';
+import NativeFile from '@modules/native-file';
 import { getErrorChainMessages } from '@utils/error';
 
 class MyLogger implements Logger {
@@ -367,6 +369,23 @@ export const initializeDatabase = () => {
     initialization = migrate(drizzleDb, getPendingMigrations(_db))
       .then(() => {
         runDatabaseBootstrap(_db);
+        if (Platform.OS === 'ios') {
+          // Saved local paths must follow the current iOS sandbox after an upgrade.
+          for (const [table, column] of [
+            ['Novel', 'path'],
+            ['Novel', 'cover'],
+            ['Chapter', 'path'],
+          ]) {
+            _db.executeSync(
+              `UPDATE ${table} SET ${column} =
+                CASE WHEN ${column} LIKE 'file://%' THEN 'file://' ELSE '' END || ? ||
+                substr(${column}, instr(${column}, '/Documents/') + 10)
+               WHERE (${column} LIKE '/%/Containers/Data/Application/%/Documents/%'
+                 OR ${column} LIKE 'file:///%/Containers/Data/Application/%/Documents/%');`,
+              [NativeFile.DocumentDirectoryPath],
+            );
+          }
+        }
       })
       .catch((error: Error) => {
         // DrizzleQueryError keeps the native SQLite message (e.g. "FOREIGN KEY

@@ -46,9 +46,11 @@ const insertLocalNovel = async (
     await updateNovelCategoryById(insertId, [2]);
     const novelDir = NOVEL_STORAGE + '/local/' + insertId;
     await NativeFile.mkdir(novelDir);
-    const newCoverPath = `file://${novelDir}/${cover?.split(/[/\\]/).pop()}`;
+    const newCoverPath = cover
+      ? `file://${novelDir}/${cover.split(/[/\\]/).pop()}`
+      : undefined;
 
-    if (cover) {
+    if (cover && newCoverPath) {
       const decodedPath = decodePath(cover);
       if (await NativeFile.exists(decodedPath)) {
         await NativeFile.moveFile(decodedPath, newCoverPath);

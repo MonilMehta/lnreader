@@ -62,3 +62,23 @@ codebase, however, you can always check to see if the source code is compliant b
 ```bash
 pnpm run lint
 ```
+
+## iOS simulator
+
+With Xcode and CocoaPods installed, run:
+
+```sh
+pnpm install --frozen-lockfile
+pnpm run dev:ios --device "iPhone 17 Pro" --port 8082
+```
+
+The iOS config plugin bundles the reader CSS, scripts, and fonts. The app copies
+them into Documents so WKWebView can also read imported EPUB assets offline.
+Local backup files are saved in LNReader's Documents folder, visible in Files.
+
+Downloads, imports, exports, manual updates, and backups run through one
+foreground worker. Interrupted tasks retain checkpoints and can be resumed.
+Automatic scheduled jobs, Android share intents, and APK updates are not offered
+on iOS. Google Drive backup needs an iOS OAuth client and URL scheme before it
+can be enabled; local and self-hosted backups remain available. Volume-button
+page turning still needs an iOS implementation.

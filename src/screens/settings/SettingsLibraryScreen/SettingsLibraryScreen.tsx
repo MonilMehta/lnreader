@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import { Platform, ScrollView, StyleSheet } from 'react-native';
 
 import { Appbar, List, SafeAreaView } from '@components';
 import { useBoolean } from '@hooks';
@@ -343,14 +343,18 @@ const SettingsLibraryScreen = ({ navigation }: LibrarySettingsScreenProps) => {
           <List.SubHeader theme={theme}>
             {getString('generalSettingsScreen.globalUpdate')}
           </List.SubHeader>
-          <List.Item
-            title={getString('generalSettingsScreen.automaticUpdates')}
-            description={getString(
-              AUTOMATIC_UPDATE_LABELS[automaticLibraryUpdateIntervalHours],
-            )}
-            onPress={automaticUpdatesDialog.setTrue}
-            theme={theme}
-          />
+          {Platform.OS === 'android' && (
+            <>
+              <List.Item
+                title={getString('generalSettingsScreen.automaticUpdates')}
+                description={getString(
+                  AUTOMATIC_UPDATE_LABELS[automaticLibraryUpdateIntervalHours],
+                )}
+                onPress={automaticUpdatesDialog.setTrue}
+                theme={theme}
+              />
+            </>
+          )}
           <List.Item
             title={getString('generalSettingsScreen.globalUpdateCategories')}
             description={`${getString(

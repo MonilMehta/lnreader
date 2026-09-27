@@ -1,5 +1,9 @@
+import {
+  readerAssetsUri as assetsUriPrefix,
+  readerFileAccessUrl,
+} from '@utils/readerAssets';
 import { StatusBar, StyleSheet } from 'react-native';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import WebView from 'react-native-webview';
 
 import {
@@ -89,15 +93,11 @@ const SettingsReaderWebView = ({
     updateSettings: updateTtsSettings,
   } = useTtsSession();
 
-  const assetsUriPrefix = useMemo(
-    () => (__DEV__ ? 'http://localhost:8081/assets' : 'file:///android_asset'),
-    [],
-  );
   const webViewCSS = `
   <link rel="stylesheet" href="${assetsUriPrefix}/css/index.css">
     <style>
     :root {
-      --StatusBar-currentHeight: ${StatusBar.currentHeight};
+      --StatusBar-currentHeight: ${StatusBar.currentHeight ?? 0};
       --readerSettings-theme: ${readerSettings.theme};
       --readerSettings-padding: ${readerSettings.padding}px;
       --readerSettings-textSize: ${readerSettings.textSize}px;
@@ -122,9 +122,7 @@ const SettingsReaderWebView = ({
 
       @font-face {
         font-family: ${readerSettings.fontFamily};
-        src: url("file:///android_asset/fonts/${
-          readerSettings.fontFamily
-        }.ttf");
+        src: url("${assetsUriPrefix}/fonts/${readerSettings.fontFamily}.ttf");
       }
     </style>
 
@@ -161,6 +159,7 @@ const SettingsReaderWebView = ({
       ref={webViewRef}
       originWhitelist={['*']}
       allowFileAccess={true}
+      allowingReadAccessToURL={readerFileAccessUrl}
       scalesPageToFit={true}
       showsVerticalScrollIndicator={false}
       javaScriptEnabled={true}
@@ -232,6 +231,7 @@ const SettingsReaderWebView = ({
         }
       }}
       source={{
+        baseUrl: readerFileAccessUrl,
         html: `
             <html>
               <head>
