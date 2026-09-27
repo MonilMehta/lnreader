@@ -66,4 +66,6 @@ cannot be created on a physical iPhone and caused the initial Release build
 to remain on its splash screen.
 
 Novel migration returns to Library after the task is queued, clearing the source
-screen from navigation. Reproduced and verified with temporary simulator novels.
+screen from navigation. When migration finishes, novels and category membership
+reload together. Verified with temporary simulator novels: the new source appears
+and opens, with matched chapter read state, bookmarks, and progress retained.

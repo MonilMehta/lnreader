@@ -273,7 +273,7 @@ export const useLibrary = (): UseLibraryReturnType => {
     previousDownloadProgressKeyRef.current = downloadProgressKey;
   }, [downloadProgressKey, getLibrary]);
 
-  const restoreTasksCount = useMemo(
+  const libraryMutationTasksCount = useMemo(
     () =>
       taskQueue?.filter(t => {
         /**
@@ -285,19 +285,20 @@ export const useLibrary = (): UseLibraryReturnType => {
         return (
           taskName === 'LOCAL_RESTORE' ||
           taskName === 'DRIVE_RESTORE' ||
-          taskName === 'SELF_HOST_RESTORE'
+          taskName === 'SELF_HOST_RESTORE' ||
+          taskName === 'MIGRATE_NOVEL'
         );
       }).length || 0,
     [taskQueue],
   );
-  const prevRestoreTasksCountRef = useRef(restoreTasksCount);
+  const prevLibraryMutationTasksCountRef = useRef(libraryMutationTasksCount);
 
   useEffect(() => {
-    if (prevRestoreTasksCountRef.current > 0 && restoreTasksCount === 0) {
+    if (prevLibraryMutationTasksCountRef.current > libraryMutationTasksCount) {
       getLibrary();
     }
-    prevRestoreTasksCountRef.current = restoreTasksCount;
-  }, [getLibrary, restoreTasksCount]);
+    prevLibraryMutationTasksCountRef.current = libraryMutationTasksCount;
+  }, [getLibrary, libraryMutationTasksCount]);
 
   return {
     library,

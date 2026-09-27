@@ -1,5 +1,6 @@
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { useMMKVObject } from 'react-native-mmkv';
 
 import {
   getLibraryNovelsFromDb,
@@ -7,6 +8,7 @@ import {
 } from '@database/queries/LibraryQueries';
 import { getCategoriesFromDb } from '@database/queries/CategoryQueries';
 import { NovelInfo } from '@database/types';
+import type { NovelRow } from '@database/schema/novel';
 import { useLiveQuery } from '@database/manager/liveQuery';
 import { useLibrarySettings } from '@hooks/persisted';
 import {
@@ -51,7 +53,7 @@ jest.mock('react-native-mmkv', () => ({
     getString: jest.fn(),
     set: jest.fn(),
   }),
-  useMMKVObject: () => [undefined],
+  useMMKVObject: jest.fn(() => [undefined]),
 }));
 
 const mockGetLibraryNovelsQuery = getLibraryNovelsQuery as jest.MockedFunction<
@@ -79,8 +81,11 @@ const mockSwitchNovelToLibraryQuery =
     typeof switchNovelToLibraryQuery
   >;
 
+const mockUseMMKVObject = useMMKVObject as jest.Mock;
+
 describe('useLibrary', () => {
   beforeEach(() => {
+    mockUseMMKVObject.mockReturnValue([undefined]);
     mockGetNovelByPath.mockClear();
     mockSwitchNovelToLibraryQuery.mockClear();
     mockUseLibrarySettings.mockReturnValue({
@@ -234,5 +239,64 @@ describe('useLibrary', () => {
 
     await expect(completion).resolves.toBe(false);
     expect(mockSwitchNovelToLibraryQuery).not.toHaveBeenCalled();
+  });
+  it('refreshes novels and category IDs after migration while another task remains', async () => {
+    const source: NovelRow = {
+      id: 1,
+      name: 'Source novel',
+      path: '/old',
+      pluginId: 'old-plugin',
+      cover: null,
+      summary: null,
+      author: null,
+      artist: null,
+      status: 'Unknown',
+      genres: null,
+      inLibrary: true,
+      isLocal: false,
+      totalPages: 0,
+      chaptersDownloaded: 0,
+      chaptersUnread: 0,
+      totalChapters: 1,
+      lastReadAt: null,
+      lastUpdatedAt: null,
+    };
+    const destination: NovelRow = {
+      ...source,
+      id: 2,
+      name: 'Destination novel',
+      path: '/new',
+      pluginId: 'new-plugin',
+    };
+    const migration = {
+      name: 'MIGRATE_NOVEL',
+      data: { fromNovel: source, pluginId: 'new-plugin', toNovelPath: '/new' },
+    };
+    const remainingTask = {
+      name: 'LOCAL_RESTORE',
+      data: { sourceUri: '/backup' },
+    };
+    mockUseMMKVObject.mockReturnValue([
+      [{ task: migration }, { task: remainingTask }],
+    ]);
+    mockGetLibraryNovelsFromDb.mockResolvedValue([source]);
+    mockGetCategoriesFromDb.mockResolvedValue([
+      { id: 1, name: 'Default', sort: 0, novelIds: '1' },
+    ]);
+    const { result, rerender } = renderHook(useLibrary);
+    await act(() => result.current.refetchLibrary());
+    expect(result.current.categories[0].novelIds).toEqual([source.id]);
+
+    mockGetLibraryNovelsFromDb.mockResolvedValue([destination]);
+    mockGetCategoriesFromDb.mockResolvedValue([
+      { id: 1, name: 'Default', sort: 0, novelIds: '2' },
+    ]);
+    mockUseMMKVObject.mockReturnValue([[{ task: remainingTask }]]);
+    rerender(undefined);
+
+    await waitFor(() => {
+      expect(result.current.library).toEqual([destination]);
+      expect(result.current.categories[0].novelIds).toEqual([destination.id]);
+    });
   });
 });
